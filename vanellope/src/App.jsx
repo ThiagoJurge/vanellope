@@ -19,7 +19,7 @@ import {
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
-const socket = io("http://localhost:5000"); // Conecta ao backend
+const socket = io("https://vanellope-production.up.railway.app/"); // Conecta ao backend
 
 function App() {
   const [qrCode, setQrCode] = useState(null);

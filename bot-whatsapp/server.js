@@ -24,7 +24,7 @@ app.get("*", (req, res) => {
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000", // Frontend React
+    origin: "https://vanellope-production.up.railway.app/", // Frontend React
     methods: ["GET", "POST"],
   },
 });
