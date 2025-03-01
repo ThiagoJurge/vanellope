@@ -33,6 +33,9 @@ app.use(cors());
 
 const client = new Client({
   authStrategy: new LocalAuth(), // Salva a sessão do WhatsApp
+  puppeteer: {
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  }
 });
 
 io.on("connection", (socket) => {
