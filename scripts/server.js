@@ -32,15 +32,15 @@ const startServer = (client, PORT = 7000) => {
           const message = data.message;
           const grupo = "120363389786177238@g.us"; // ID do grupo
 
-          const formattedMessage = `
-            *– ❒❧ Jutsu rankeado: –*
-            *• Jutsu:* ${message.title}
-            *• Rank:* ${message.rank}
-            *• Categoria:* ${message.classificacoes}
-            *• Quantidade de Usuários:* ${message.usuarios_rpg.length}/${message.usuarios}
-            *• Observações:* ${message.observacoes || "None"}
-            *• Link:* ${message.link || "None"}
-            • Acesse em: https://nindo.web.app`;
+          const formattedMessage = `*– ❒❧ Jutsu rankeado: –*
+*• Jutsu:* ${message.title}
+*• Rank:* ${message.rank}
+*• Categoria:* ${message.classificacoes}
+*• Quantidade de Usuários:* ${message.usuarios_rpg.length}/${message.usuarios}
+*• Observações:* ${message.observacoes || "None"}
+*• Link:* ${message.link || "None"}
+
+• Acesse em: https://nindo.web.app`;
 
           await client.sendMessage(grupo, formattedMessage);
           res.writeHead(200, { "Content-Type": "application/json" });
