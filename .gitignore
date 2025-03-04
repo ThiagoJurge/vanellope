@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist-ssr
 *.local
+.wwebjs_cache
+.wwebjs_auth
 
 # Editor directories and files
 .vscode/*
