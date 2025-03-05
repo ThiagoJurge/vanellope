@@ -66,6 +66,25 @@ class WhatsAppBot {
 
       await returnAvaliacao(this.client, message);
 
+      if (message.body.startsWith("/contar")) {
+        if (message.hasQuotedMsg) {
+          let quotedMsg = await message.getQuotedMessage();
+
+          if (quotedMsg.body) {
+            let palavras = quotedMsg.body.match(/[a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/g) || [];
+            let contagem = palavras.length;
+
+            message.reply(
+              `${contagem} ${contagem === 1 ? "palavra" : "palavras"}.`
+            );
+          } else {
+            message.reply("Uma mensagem sem nada escrito? Que peculiar.");
+          }
+        } else {
+          message.reply("Marca a mensagem que você que contar.");
+        }
+      }
+
       if (message.from === "120363385517847817@g.us") {
         // Realiza o sorteio
         const sorteioResposta = realizarSorteio();
