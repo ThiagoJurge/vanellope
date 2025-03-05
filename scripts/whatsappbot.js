@@ -24,7 +24,7 @@ class WhatsAppBot {
       "120363373094166284@g.us", // Sorteios
       "120363379966676777@g.us", // Avaliações
       "120363407582256633@g.us", // Comentários
-      "120363388725767072@g.us" // Mundo Ninja
+      "120363388725767072@g.us", // Mundo Ninja
     ];
 
     this.GRUPO_CLIMA = "120363370922999992@g.us"; // Grupo clima
@@ -69,23 +69,35 @@ class WhatsAppBot {
 
       if (message.body.startsWith("/contar")) {
         if (message.hasQuotedMsg) {
-          let quotedMsg = await message.getQuotedMessage();
-
-          if (quotedMsg.body) {
-            let palavras = quotedMsg.body.match(/[a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/g) || [];
-            let contagem = palavras.length;
-
-            message.reply(
-              `${contagem} ${contagem === 1 ? "palavra" : "palavras"}.`
-            );
-          } else {
-            message.reply("Uma mensagem sem nada escrito? Que peculiar.");
-          }
+            let quotedMsg = await message.getQuotedMessage(); // Obtém a mensagem citada (a mensagem1)
+    
+            if (quotedMsg && quotedMsg.body) {
+                // Conta as palavras da mensagem citada
+                let palavras = quotedMsg.body.match(/[a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/g) || [];
+                let contagem = palavras.length;
+    
+                // Mensagem de resposta
+                let responseMessage = `${contagem} ${contagem === 1 ? "palavra" : "palavras"}.`;
+    
+                try {
+                    // Envia a resposta mencionando a mensagem citada
+                    await this.client.sendMessage(message.from, responseMessage, {
+                      quotedMessageId: quotedMsg.id._serialized // Menciona a mensagem1
+                  });
+                    // Deleta a mensagem2 (a que contém /contar)
+                    await message.delete(true);
+                } catch (error) {
+                    console.error("Erro ao enviar a mensagem citada:", error);
+                }
+    
+            } else {
+                this.client.sendMessage(message.from, "Uma mensagem sem nada escrito? Que peculiar.");
+            }
         } else {
-          message.reply("Marca a mensagem que você que contar.");
+            this.client.sendMessage(message.from, "Marca a mensagem que você quer contar.");
         }
-      }
-
+    }
+    
       if (message.from === "120363385517847817@g.us") {
         // Realiza o sorteio
         const sorteioResposta = realizarSorteio();
@@ -112,7 +124,7 @@ class WhatsAppBot {
         await this.client.sendMessage(message.from, responseMessage);
       }
     } else {
-      console.log("Grupo não autorizado:", message.from)
+      console.log("Grupo não autorizado:", message.from);
     }
   }
 
