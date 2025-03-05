@@ -24,6 +24,7 @@ class WhatsAppBot {
       "120363373094166284@g.us", // Sorteios
       "120363379966676777@g.us", // Avaliações
       "120363407582256633@g.us", // Comentários
+      "120363388725767072@g.us" // Mundo Ninja
     ];
 
     this.GRUPO_CLIMA = "120363370922999992@g.us"; // Grupo clima
@@ -110,6 +111,8 @@ class WhatsAppBot {
         console.log(`💬 Respondendo para: ${message.from}`);
         await this.client.sendMessage(message.from, responseMessage);
       }
+    } else {
+      console.log("Grupo não autorizado:", message.from)
     }
   }
 
