@@ -4,7 +4,7 @@ const enviarMensagemWebhook = async (message, client) => {
   if (message.body.startsWith("F0") || message.body.startsWith("/") || message.body.startsWith("S0")) {
     try {
       // Envia a mensagem temporária "Carregando..."
-      const loadingMessage = await client.sendMessage(message.from, "⏳ Carregando...");
+      const loadingMessage = await client.sendMessage(message.from, `「 ⟳ Buscando o sistema: ${message.from} ... 」`);
 
       // Timeout de 10s para evitar travamentos
       const source = axios.CancelToken.source();
