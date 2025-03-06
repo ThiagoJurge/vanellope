@@ -4,7 +4,7 @@ const enviarMensagemWebhook = async (message, client) => {
   if (message.body.startsWith("F0") || message.body.startsWith("/") || message.body.startsWith("S0")) {
     try {
       // Envia a mensagem temporária "Carregando..."
-      const loadingMessage = await client.sendMessage(message.from, `「 ⟳ Buscando o sistema: ${message.body} ... 」`);
+      const loadingMessage = await client.sendMessage(message.from, "⏳ Carregando...");
 
       // Timeout de 10s para evitar travamentos
       const source = axios.CancelToken.source();
@@ -27,29 +27,20 @@ const enviarMensagemWebhook = async (message, client) => {
       console.log(message.body, response.data);
       console.log(response.data?.replies?.length > 0);
 
-      // Se houver uma resposta válida, tenta editar a mensagem
+      // Se houver uma resposta válida, aguarda 1s antes de editar
       if (response.data?.replies?.length > 0) {
         const responseMessage = response.data.replies[0].message.trim();
 
-        // Tenta editar até 3 vezes com um pequeno delay entre elas
-        let editSuccess = false;
-        for (let i = 0; i < 3; i++) {
-          try {
-            await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1))); // Atraso antes da edição
-            await loadingMessage.edit(responseMessage);
-            editSuccess = true;
-            break; // Sai do loop se conseguir editar
-          } catch (editError) {
-            console.error(`Tentativa ${i + 1} falhou ao editar mensagem:`, editError.message);
-          }
-        }
-
-        // Se todas as tentativas falharem, envia uma nova mensagem
-        if (!editSuccess) {
-          await client.sendMessage(message.from, responseMessage);
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera 1s antes de editar
+          await loadingMessage.edit(responseMessage);
+        } catch (editError) {
+          console.error("Erro ao editar mensagem:", editError.message);
+          await client.sendMessage(message.from, responseMessage); // Se falhar, envia uma nova mensagem
         }
       } else {
         try {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera 1s antes de editar
           await loadingMessage.edit("⚠️ Nenhuma resposta encontrada.");
         } catch (editError) {
           await client.sendMessage(message.from, "⚠️ Nenhuma resposta encontrada.");
