@@ -7,6 +7,21 @@ const { startServer } = require("./server");
 const { realizarSorteio } = require("../modules/randomItem");
 const { mentionAll } = require("../modules/mentionAll");
 const { returnAvaliacao } = require("../modules/returnAvaliacao");
+const { wordCounter } = require("../modules/wordCounter");
+
+// Constantes para IDs de grupos
+const GROUP_IDS = {
+  SORTEIOS_E_TESTES: "120363388895811072@g.us",
+  ADMINISTRACAO: "120363385517847817@g.us",
+  SISTEMAS: "120363368764911804@g.us",
+  RECRUTAMENTO: "120363390253263715@g.us",
+  LOJA: "120363389786177238@g.us",
+  SORTEIOS: "120363373094166284@g.us",
+  AVALIACOES: "120363379966676777@g.us",
+  COMENTARIOS: "120363407582256633@g.us",
+  MUNDO_NINJA: "120363388725767072@g.us",
+  CLIMA: "120363370922999992@g.us",
+};
 
 class WhatsAppBot {
   constructor() {
@@ -15,19 +30,7 @@ class WhatsAppBot {
       puppeteer: { args: ["--no-sandbox", "--disable-setuid-sandbox"] },
     });
 
-    this.allowedGroups = [
-      "120363388895811072@g.us", // Sorteios e testes
-      "120363385517847817@g.us", // Administração
-      "120363368764911804@g.us", // Sistemas
-      "120363390253263715@g.us", // Recrutamento
-      "120363389786177238@g.us", // Loja
-      "120363373094166284@g.us", // Sorteios
-      "120363379966676777@g.us", // Avaliações
-      "120363407582256633@g.us", // Comentários
-      "120363388725767072@g.us", // Mundo Ninja
-    ];
-
-    this.GRUPO_CLIMA = "120363370922999992@g.us"; // Grupo clima
+    this.allowedGroups = Object.values(GROUP_IDS);
 
     this.initialize();
   }
@@ -68,38 +71,10 @@ class WhatsAppBot {
       await returnAvaliacao(this.client, message);
 
       if (message.body.startsWith("/contar")) {
-        if (message.hasQuotedMsg) {
-            let quotedMsg = await message.getQuotedMessage(); // Obtém a mensagem citada (a mensagem1)
-    
-            if (quotedMsg && quotedMsg.body) {
-                // Conta as palavras da mensagem citada
-                let palavras = quotedMsg.body.match(/[a-zA-ZÀ-ÖØ-öø-ÿ0-9]+/g) || [];
-                let contagem = palavras.length;
-    
-                // Mensagem de resposta
-                let responseMessage = `${contagem} ${contagem === 1 ? "palavra" : "palavras"}.`;
-    
-                try {
-                    // Envia a resposta mencionando a mensagem citada
-                    await this.client.sendMessage(message.from, responseMessage, {
-                      quotedMessageId: quotedMsg.id._serialized // Menciona a mensagem1
-                  });
-                    // Deleta a mensagem2 (a que contém /contar)
-                    await message.delete(true);
-                } catch (error) {
-                    console.error("Erro ao enviar a mensagem citada:", error);
-                }
-    
-            } else {
-                this.client.sendMessage(message.from, "Uma mensagem sem nada escrito? Que peculiar.");
-            }
-        } else {
-            this.client.sendMessage(message.from, "Marca a mensagem que você quer contar.");
-        }
-    }
-    
-      if (message.from === "120363385517847817@g.us") {
-        // Realiza o sorteio
+        wordCounter(this.client, message);
+      }
+
+      if (message.from === GROUP_IDS.ADMINISTRACAO) {
         const sorteioResposta = realizarSorteio();
         if (sorteioResposta) {
           message.reply(sorteioResposta);
@@ -117,11 +92,21 @@ class WhatsAppBot {
         await this.enviarClima(message.from);
         return;
       }
-
-      const responseMessage = await enviarMensagemWebhook(message);
-      if (responseMessage) {
-        console.log(`💬 Respondendo para: ${message.from}`);
-        await this.client.sendMessage(message.from, responseMessage);
+      if (
+        message.from === GROUP_IDS.SISTEMAS ||
+        message.from === GROUP_IDS.ADMINISTRACAO ||
+        message.from === GROUP_IDS.RECRUTAMENTO ||
+        message.from === GROUP_IDS.SORTEIOS_E_TESTES ||
+        message.from === GROUP_IDS.LOJA
+      ) {
+        const responseMessage = await enviarMensagemWebhook(
+          message,
+          this.client
+        );
+        if (responseMessage) {
+          console.log(`💬 Respondendo para: ${message.from}`);
+          await this.client.sendMessage(message.from, responseMessage);
+        }
       }
     } else {
       console.log("Grupo não autorizado:", message.from);
@@ -131,7 +116,7 @@ class WhatsAppBot {
   async enviarClima() {
     try {
       const mensagem = obterClima();
-      await this.client.sendMessage(this.GRUPO_CLIMA, mensagem);
+      await this.client.sendMessage(GROUP_IDS.CLIMA, mensagem);
       console.log("✅ Clima enviado com sucesso!");
     } catch (error) {
       console.error("❌ Erro ao enviar clima:", error.message);

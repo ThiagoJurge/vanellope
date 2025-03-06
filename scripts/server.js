@@ -58,7 +58,7 @@ const startServer = (client, PORT = 7000) => {
   });
 
   server.listen(PORT, () => {
-    console.log(`ℹ️ Servidor HTTPS rodando na porta ${PORT}`);
+    console.log(`[ℹ️] Servidor HTTPS rodando na porta ${PORT}`);
   });
 };
 
