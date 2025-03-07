@@ -9,6 +9,31 @@ const enviarMensagemWebhook = async (message, client) => {
       // Timeout de 10s para evitar travamentos
       const source = axios.CancelToken.source();
       const timeout = setTimeout(() => source.cancel("Tempo limite atingido."), 10000);
+      
+      let mensagemFormatada = message.body;
+
+      // Expressão regular para encontrar links do Naruto Fandom na mensagem
+      const urlRegex = /(https:\/\/naruto\.fandom\.com\/pt-br\/wiki\/[^\s]*)/g;
+
+      // Formata corretamente cada URL encontrada
+      mensagemFormatada = mensagemFormatada.replace(urlRegex, (url) => {
+        try {
+          // Decodifica caracteres especiais existentes na URL
+          let decodedUrl = decodeURIComponent(url);
+          
+          // Substitui espaços por underscores e recodifica corretamente
+          let formattedUrl = decodedUrl.replace(/\s+/g, "_");
+          
+          // Recodifica a URL para garantir caracteres especiais em UTF-8
+          return encodeURI(formattedUrl);
+        } catch (error) {
+          console.error("Erro ao formatar URL:", error);
+          return url; // Retorna a URL original caso algo dê errado
+        }
+      });
+
+
+
 
       // Faz a requisição para o webhook
       const response = await axios.post(
@@ -16,7 +41,7 @@ const enviarMensagemWebhook = async (message, client) => {
         {
           query: {
             groupParticipant: message.author,
-            message: message.body,
+            message: mensagemFormatada,
           },
         },
         { cancelToken: source.token }
