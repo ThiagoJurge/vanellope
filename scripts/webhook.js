@@ -4,7 +4,7 @@ const enviarMensagemWebhook = async (message, client) => {
   if (message.body.startsWith("F0") || message.body.startsWith("/") || message.body.startsWith("S0")) {
     try {
       // Envia a mensagem temporária "Carregando..."
-      const loadingMessage = await client.sendMessage(message.from, `「 ⟳ Buscando o sistema: ${message.body} ... 」`);
+      await client.sendMessage(message.from, `「 ⟳ Buscando ... 」`);
 
       // Timeout de 10s para evitar travamentos
       const source = axios.CancelToken.source();
@@ -32,9 +32,6 @@ const enviarMensagemWebhook = async (message, client) => {
         }
       });
 
-
-
-
       // Faz a requisição para o webhook
       const response = await axios.post(
         "https://nindo.vercel.app/webhook",
@@ -51,25 +48,19 @@ const enviarMensagemWebhook = async (message, client) => {
 
       console.log(message.body, response.data);
       console.log(response.data?.replies?.length > 0);
-
-      // Se houver uma resposta válida, aguarda 1s antes de editar
+      console.log(response.data?.replies != "")
+      // Se houver uma resposta válida, envia a resposta
       if (response.data?.replies?.length > 0) {
         const responseMessage = response.data.replies[0].message.trim();
-
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera 1s antes de editar
-          await loadingMessage.edit(responseMessage);
-        } catch (editError) {
-          console.error("Erro ao editar mensagem:", editError.message);
-          await client.sendMessage(message.from, responseMessage); // Se falhar, envia uma nova mensagem
+        
+        // Se a resposta for vazia, envia uma mensagem de erro
+        if (responseMessage === '') {
+          await client.sendMessage(message.from, "⚠️ Sistema inexistente.");
+        } else {
+          await client.sendMessage(message.from, responseMessage);
         }
       } else {
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera 1s antes de editar
-          await loadingMessage.edit("⚠️ Nenhuma resposta encontrada.");
-        } catch (editError) {
-          await client.sendMessage(message.from, "⚠️ Nenhuma resposta encontrada.");
-        }
+        await client.sendMessage(message.from, "⚠️ Nenhuma resposta encontrada.");
       }
     } catch (error) {
       console.error("Erro ao enviar mensagem para o webhook:", error.message);
