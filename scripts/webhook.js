@@ -2,9 +2,9 @@ const axios = require("axios");
 
 const enviarMensagemWebhook = async (message, client) => {
   if (message.body.startsWith("F0") || message.body.startsWith("/") || message.body.startsWith("S0")) {
+    console.log(message.body)
     try {
       // Envia a mensagem temporária "Carregando..."
-      await client.sendMessage(message.from, `「 ⟳ Buscando ... 」`);
 
       // Timeout de 10s para evitar travamentos
       const source = axios.CancelToken.source();
@@ -41,7 +41,7 @@ const enviarMensagemWebhook = async (message, client) => {
             message: mensagemFormatada,
           },
         },
-        { cancelToken: source.token }
+        
       );
 
       clearTimeout(timeout); // Cancela o timeout se a requisição for bem-sucedida
