@@ -272,7 +272,6 @@ class WhatsAppBot {
       }
     } else {
       console.log("Grupo não autorizado:", message.from);
-      console.log(message)
     }
   }
 
@@ -295,6 +294,7 @@ class WhatsAppBot {
   async handleGroupJoin(notification) {
     const group = await notification.getChat();
     const number = notification.id?.participant; // Garantir que o número não seja undefined
+    console.log(number)
   
     // Verificar se o número foi extraído corretamente
     if (!number) {
@@ -331,7 +331,8 @@ class WhatsAppBot {
           console.log(`💬 Enviando tutorial para: ${number}`);
         }
   
-        const sorteiosCheckMessage = { body: `/sorteios ${number}` , from: group.id._serialized, author: number}; // Mensagem fictícia para o sorteio
+        const number_semcus = number.replace("@c.us","")
+        const sorteiosCheckMessage = { body: `/sorteios ${number_semcus}` , from: group.id._serialized, author: number}; // Mensagem fictícia para o sorteio
         const sorteios_check = await enviarMensagemWebhook(sorteiosCheckMessage, this.client);
         if (sorteios_check) {
           console.log(`💬 Enviando verificação de sorteios para: ${number}`);
